@@ -11,15 +11,36 @@ class StorageFloatValues:
     # -----------------------------------------------------------------------------
     def add_value(self, value):
         logging.debug("add_value. value: {}".format(value))
-        i = 0
-        for elem in self.de:
-            if value < elem:
-                logging.debug("add_value. insert: {} at {}".format(value,i))
-                self.de.insert(i, value)
+        # first insert to the left or right if value is less than min or more than max
+        if len(self.de) > 0:
+            if value < self.de[0]:
+                logging.debug("add_value. append left: {}".format(value))
+                self.de.appendleft(value)
                 return
-            i += 1
+            if value > self.de[-1]:
+                logging.debug("add_value. append right: {}".format(value))
+                self.de.append(value)
+                return
+        if len(self.de) == 0:
+            self.de.append(value)
+            return
 
-        self.de.append(value)
+        left_index = 0
+        right_index = len(self.de) - 1
+        while left_index < right_index:
+            mid = int((left_index + right_index) / 2)
+            if value < self.de[mid]:
+                logging.debug("add_value. right_index: {} at {}".format(right_index,mid))
+                right_index = mid
+            if value >= self.de[mid]:
+                logging.debug("add_value. left_index: {} at {}".format(left_index,mid))
+                left_index = mid
+            if right_index - left_index <= 1:
+                logging.debug("add_value. insert: {} at {}".format(value,left_index+1))
+                self.de.insert(left_index+1, value)
+                return
+
+
 
     # -----------------------------------------------------------------------------
     def print_value(self):
@@ -41,7 +62,7 @@ class StorageFloatValues:
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
 #    logging.basicConfig(level=logging.DEBUG)
-    input_list = [111.3, 31.5, 5.1, 15.0, -10.0, 1.2, 2200.9, -9.0, 2.0, 4.3]
+    input_list = [111.3, 31.5, 5.1, 15.0, -10.0, 1.2, 5.1, 2200.9, -9.0, 2.0, 4.3]
     so = StorageFloatValues()
     for f in input_list:
         so.add_value(f)
